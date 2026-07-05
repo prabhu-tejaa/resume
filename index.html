@@ -8,37 +8,63 @@
     
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-KZ26VSFSNL"></script>
     <script>
-        var redirectUrl = "assets/Software_Engineer_CV.pdf";
-        var redirected = false;
-
-        function doRedirect() {
-            if (!redirected) {
-                redirected = true;
-                window.location.replace(redirectUrl);
-            }
-        }
+        var pdfUrl = "assets/Software_Engineer_CV.pdf";
 
         window.dataLayer = window.dataLayer || [];
         function gtag(){dataLayer.push(arguments);}
         gtag('js', new Date());
-        
-        gtag('config', 'G-KZ26VSFSNL', {
-            'transport_type': 'beacon',
-            'event_callback': doRedirect
-        });
+        gtag('config', 'G-KZ26VSFSNL');
 
-        setTimeout(doRedirect, 100);
+        // Force the browser to fully download the PDF in the background FIRST.
+        // This keeps the terminal loader on screen instead of a blank black page!
+        fetch(pdfUrl)
+            .then(function(response) { return response.blob(); })
+            .then(function() { 
+                // Once fully downloaded into browser cache, redirect. It will open instantly!
+                window.location.replace(pdfUrl); 
+            })
+            .catch(function() { 
+                window.location.replace(pdfUrl); 
+            });
+
+        // Ultimate fallback if the network is extremely slow
+        setTimeout(function() { window.location.replace(pdfUrl); }, 6000);
     </script>
 
     <style>
         body, html {
-            background-color: #323639;
+            background-color: #0d1117;
             margin: 0;
             height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-family: 'Courier New', Courier, monospace;
+        }
+
+        .terminal-loader {
+            color: #58a6ff;
+            font-size: 1.2rem;
+            letter-spacing: 1px;
+        }
+
+        .terminal-loader::after {
+            content: '█';
+            color: #58a6ff;
+            margin-left: 6px;
+            animation: blink 1s step-start infinite;
+        }
+
+        @keyframes blink {
+            50% { opacity: 0; }
         }
     </style>
 </head>
 <body>
+    <a href="assets/Software_Engineer_CV.pdf" style="text-decoration: none;">
+        <div class="terminal-loader">~ ./fetch_resume.sh</div>
+    </a>
+    
     <noscript>
         <meta http-equiv="refresh" content="0;url=assets/Software_Engineer_CV.pdf">
     </noscript>
