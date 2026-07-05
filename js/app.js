@@ -21,7 +21,6 @@ if (!pdfUrl || pdfUrl.trim() === "") {
     setTimeout(function() { window.location.replace(pdfUrl); }, 6000);
 }
 
-// Cleanup uncompiled Jekyll frontmatter when testing locally
 document.addEventListener("DOMContentLoaded", function() {
     document.body.childNodes.forEach(function(node) {
         if (node.nodeType === Node.TEXT_NODE && node.nodeValue.includes("---")) {
