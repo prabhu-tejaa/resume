@@ -6,6 +6,12 @@
     <meta name="color-scheme" content="dark">
     <title>Prabhu Teja Pamula Resume</title>
     
+    <meta name="description" content="Software Engineer Resume for Prabhu Teja Pamula.">
+    <meta property="og:title" content="Prabhu Teja Pamula - Software Engineer">
+    <meta property="og:description" content="View my resume, experience, and projects.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://prabhu-tejaa.github.io/resume/">
+    
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-KZ26VSFSNL"></script>
     <script>
         var pdfUrl = "assets/Software_Engineer_CV.pdf";
@@ -15,19 +21,15 @@
         gtag('js', new Date());
         gtag('config', 'G-KZ26VSFSNL');
 
-        // Force the browser to fully download the PDF in the background FIRST.
-        // This keeps the terminal loader on screen instead of a blank black page!
         fetch(pdfUrl)
             .then(function(response) { return response.blob(); })
             .then(function() { 
-                // Once fully downloaded into browser cache, redirect. It will open instantly!
                 window.location.replace(pdfUrl); 
             })
             .catch(function() { 
                 window.location.replace(pdfUrl); 
             });
 
-        // Ultimate fallback if the network is extremely slow
         setTimeout(function() { window.location.replace(pdfUrl); }, 6000);
     </script>
 
