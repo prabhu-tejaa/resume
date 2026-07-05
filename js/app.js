@@ -4,7 +4,7 @@ if (!pdfUrl || pdfUrl.trim() === "") {
     document.addEventListener("DOMContentLoaded", function() {
         var loader = document.querySelector('.terminal-loader');
         if (loader) {
-            loader.innerHTML = "<span style='color: #ff7b72;'>Error: Resume file not found in repository.</span>";
+            loader.innerHTML = "<span style='color: #ff7b72;'>Error: Resume file not found.</span>";
             loader.style.color = "#ff7b72";
         }
     });
