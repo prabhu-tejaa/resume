@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="color-scheme" content="dark">
+    <title>Prabhu Teja Pamula Resume</title>
+    
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-KZ26VSFSNL"></script>
+    <script>
+        var redirectUrl = "assets/Software_Engineer_CV.pdf";
+        var redirected = false;
+
+        function doRedirect() {
+            if (!redirected) {
+                redirected = true;
+                window.location.replace(redirectUrl);
+            }
+        }
+
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        
+        gtag('config', 'G-KZ26VSFSNL', {
+            'transport_type': 'beacon',
+            'event_callback': doRedirect
+        });
+
+        setTimeout(doRedirect, 100);
+    </script>
+
+    <style>
+        body, html {
+            background-color: #323639;
+            margin: 0;
+            height: 100vh;
+        }
+    </style>
+</head>
+<body>
+    <noscript>
+        <meta http-equiv="refresh" content="0;url=assets/Software_Engineer_CV.pdf">
+    </noscript>
+</body>
+</html>
