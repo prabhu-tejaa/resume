@@ -12,58 +12,20 @@
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://prabhu-tejaa.github.io/resume/">
     
+    <link rel="stylesheet" href="css/style.css">
+    
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-KZ26VSFSNL"></script>
+    <script src="js/tracking.js"></script>
+    
     <script>
-        var pdfUrl = "assets/Software_Engineer_CV.pdf";
-
-        window.dataLayer = window.dataLayer || [];
-        function gtag(){dataLayer.push(arguments);}
-        gtag('js', new Date());
-        gtag('config', 'G-KZ26VSFSNL');
-
-        fetch(pdfUrl)
-            .then(function(response) { return response.blob(); })
-            .then(function() { 
-                window.location.replace(pdfUrl); 
-            })
-            .catch(function() { 
-                window.location.replace(pdfUrl); 
-            });
-
-        setTimeout(function() { window.location.replace(pdfUrl); }, 6000);
+        var jekyllPdf = "{% for file in site.static_files %}{% if file.extname == '.pdf' %}{{ site.baseurl }}{{ file.path }}{% break %}{% endif %}{% endfor %}";
+        window.pdfUrl = jekyllPdf.includes("{%") ? "" : jekyllPdf;
     </script>
-
-    <style>
-        body, html {
-            background-color: #0d1117;
-            margin: 0;
-            height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            font-family: 'Courier New', Courier, monospace;
-        }
-
-        .terminal-loader {
-            color: #58a6ff;
-            font-size: 1.2rem;
-            letter-spacing: 1px;
-        }
-
-        .terminal-loader::after {
-            content: '█';
-            color: #58a6ff;
-            margin-left: 6px;
-            animation: blink 1s step-start infinite;
-        }
-
-        @keyframes blink {
-            50% { opacity: 0; }
-        }
-    </style>
+    
+    <script src="js/app.js"></script>
 </head>
 <body>
-    <a href="assets/Software_Engineer_CV.pdf" style="text-decoration: none;">
+    <a href="{% for file in site.static_files %}{% if file.extname == '.pdf' %}{{ site.baseurl }}{{ file.path }}{% break %}{% endif %}{% endfor %}" style="text-decoration: none;">
         <div class="terminal-loader">~ ./fetch_resume.sh</div>
     </a>
 </body>
