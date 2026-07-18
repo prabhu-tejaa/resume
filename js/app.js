@@ -28,3 +28,14 @@ document.addEventListener("DOMContentLoaded", function() {
         }
     });
 });
+
+window.addEventListener('pageshow', function(event) {
+    if (event.persisted) {
+        window.history.back();
+        
+        var loader = document.querySelector('.terminal-loader');
+        if (loader) {
+            loader.innerHTML = "~ ./resume_fetched.sh<br><br><span style='font-size: 0.8em; color: #8b949e;'>Resume loaded. Click here to open again.</span>";
+        }
+    }
+});
