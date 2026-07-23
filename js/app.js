@@ -13,7 +13,8 @@ if (!pdfUrl || pdfUrl.trim() === "") {
         var isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
         if (isMobile && window.location.hostname !== "localhost" && window.location.hostname !== "127.0.0.1") {
             var fullUrl = new URL(pdfUrl, window.location.href).href;
-            window.location.replace("https://docs.google.com/viewer?url=" + encodeURIComponent(fullUrl));
+            var viewerUrl = "https://docs.google.com/viewer?url=" + encodeURIComponent(fullUrl) + "&embedded=true";
+            document.body.innerHTML = '<iframe src="' + viewerUrl + '" style="position:fixed; top:0; left:0; bottom:0; right:0; width:100%; height:100%; border:none; margin:0; padding:0; overflow:hidden; z-index:999999;"></iframe>';
         } else {
             window.location.replace(pdfUrl);
         }
