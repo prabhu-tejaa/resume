@@ -9,16 +9,22 @@ if (!pdfUrl || pdfUrl.trim() === "") {
         }
     });
 } else {
+    function redirectToPdf() {
+        var isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+        if (isMobile && window.location.hostname !== "localhost" && window.location.hostname !== "127.0.0.1") {
+            var fullUrl = new URL(pdfUrl, window.location.href).href;
+            window.location.replace("https://docs.google.com/viewer?url=" + encodeURIComponent(fullUrl));
+        } else {
+            window.location.replace(pdfUrl);
+        }
+    }
+
     fetch(pdfUrl)
         .then(function(response) { return response.blob(); })
-        .then(function() { 
-            window.location.replace(pdfUrl); 
-        })
-        .catch(function() { 
-            window.location.replace(pdfUrl); 
-        });
+        .then(redirectToPdf)
+        .catch(redirectToPdf);
 
-    setTimeout(function() { window.location.replace(pdfUrl); }, 6000);
+    setTimeout(redirectToPdf, 6000);
 }
 
 document.addEventListener("DOMContentLoaded", function() {

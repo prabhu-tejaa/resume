@@ -12,8 +12,9 @@ Here is exactly what the code is doing step-by-step:
    - It creates a blinking block (`█`) next to the text `~ ./fetch_resume.sh` to make it look like a real command line terminal.
 3. **Automatic Redirect (`app.js`)**:
    - The `js/app.js` file handles opening the resume. 
-   - It tries to silently download the PDF in the background. Once it finishes loading, it automatically redirects you to the actual PDF document.
-   - As a backup, if it takes more than 6 seconds to load, it will just force the browser to go to the PDF link anyway.
+   - On **desktop**, it redirects directly to the PDF file so your browser's native PDF viewer can display it.
+   - On **mobile**, to prevent the browser from automatically downloading the file, it redirects to the Google Docs Viewer to display the PDF inline directly on the screen.
+   - As a backup, if it takes more than 6 seconds to load, it will force the redirect anyway.
    - If no PDF was found in the project at all, it will show a red error message saying "Error: Resume file not found."
 4. **Returning to the Page**: If you click the "Back" button on your browser after viewing the PDF, the JavaScript detects this and changes the text to `~ ./resume_fetched.sh` so it looks like the terminal command successfully finished!
 5. **Google Analytics**: The `js/tracking.js` file contains a small tracker so we can see how many people visit the site.
