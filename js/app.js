@@ -17,8 +17,13 @@ if (!pdfUrl || pdfUrl.trim() === "") {
         var isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
         if (isMobile && window.location.hostname !== "localhost" && window.location.hostname !== "127.0.0.1") {
             var fullUrl = new URL(pdfUrl, window.location.href).href;
+            // Reset body styles that were restricted for the terminal loader
+            document.body.style.height = "auto";
+            document.body.style.minHeight = "100vh";
+            document.body.style.display = "block";
+            document.body.style.backgroundColor = "#525659";
             
-            document.body.innerHTML = '<div id="pdf-container" style="width: 100%; display: flex; flex-direction: column; align-items: center; background-color: #525659; overflow-y: auto; height: 100vh; padding-top: 10px;"></div>';
+            document.body.innerHTML = '<div id="pdf-container" style="width: 100%; display: flex; flex-direction: column; align-items: center; padding-top: 10px; padding-bottom: 100px;"></div>';
             var container = document.getElementById('pdf-container');
             
             var loadingTask = pdfjsLib.getDocument(fullUrl);
