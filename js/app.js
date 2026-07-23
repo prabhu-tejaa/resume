@@ -17,8 +17,43 @@ if (!pdfUrl || pdfUrl.trim() === "") {
         var isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
         if (isMobile && window.location.hostname !== "localhost" && window.location.hostname !== "127.0.0.1") {
             var fullUrl = new URL(pdfUrl, window.location.href).href;
-            var viewerUrl = "https://docs.google.com/viewer?url=" + encodeURIComponent(fullUrl) + "&embedded=true";
-            document.body.innerHTML = '<iframe src="' + viewerUrl + '" style="position:fixed; top:0; left:0; bottom:0; right:0; width:100%; height:100%; border:none; margin:0; padding:0; overflow:hidden; z-index:999999;"></iframe>';
+            
+            document.body.innerHTML = '<div id="pdf-container" style="width: 100%; display: flex; flex-direction: column; align-items: center; background-color: #525659; overflow-y: auto; height: 100vh; padding-top: 10px;"></div>';
+            var container = document.getElementById('pdf-container');
+            
+            var loadingTask = pdfjsLib.getDocument(fullUrl);
+            loadingTask.promise.then(function(pdf) {
+                for (let pageNum = 1; pageNum <= pdf.numPages; pageNum++) {
+                    let wrapper = document.createElement('div');
+                    wrapper.style.width = "95%";
+                    wrapper.style.maxWidth = "800px";
+                    wrapper.style.marginBottom = "10px";
+                    container.appendChild(wrapper);
+                    
+                    pdf.getPage(pageNum).then(function(page) {
+                        var scale = window.devicePixelRatio || 1.5;
+                        var viewport = page.getViewport({scale: scale});
+                        var canvas = document.createElement('canvas');
+                        var context = canvas.getContext('2d');
+                        canvas.height = viewport.height;
+                        canvas.width = viewport.width;
+                        canvas.style.width = "100%";
+                        canvas.style.boxShadow = "0 4px 8px rgba(0,0,0,0.5)";
+                        
+                        wrapper.appendChild(canvas);
+                        
+                        var renderContext = {
+                            canvasContext: context,
+                            viewport: viewport
+                        };
+                        page.render(renderContext);
+                    });
+                }
+            }).catch(function(error) {
+                console.error("PDF.js Error: ", error);
+                window.location.replace(pdfUrl); // fallback
+            });
+            
         } else {
             window.location.replace(pdfUrl);
         }
