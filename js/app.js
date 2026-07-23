@@ -49,6 +49,28 @@ if (!pdfUrl || pdfUrl.trim() === "") {
                         page.render(renderContext);
                     });
                 }
+                
+                // Create floating download button
+                var downloadBtn = document.createElement('a');
+                downloadBtn.href = pdfUrl;
+                downloadBtn.download = "Resume.pdf";
+                downloadBtn.style.position = "fixed";
+                downloadBtn.style.bottom = "25px";
+                downloadBtn.style.right = "25px";
+                downloadBtn.style.backgroundColor = "#2ea043";
+                downloadBtn.style.color = "white";
+                downloadBtn.style.width = "56px";
+                downloadBtn.style.height = "56px";
+                downloadBtn.style.borderRadius = "28px";
+                downloadBtn.style.display = "flex";
+                downloadBtn.style.justifyContent = "center";
+                downloadBtn.style.alignItems = "center";
+                downloadBtn.style.boxShadow = "0 4px 12px rgba(0,0,0,0.5)";
+                downloadBtn.style.zIndex = "999999";
+                downloadBtn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>';
+                
+                document.body.appendChild(downloadBtn);
+                
             }).catch(function(error) {
                 console.error("PDF.js Error: ", error);
                 window.location.replace(pdfUrl); // fallback
