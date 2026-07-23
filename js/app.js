@@ -9,7 +9,11 @@ if (!pdfUrl || pdfUrl.trim() === "") {
         }
     });
 } else {
+    var redirected = false;
     function redirectToPdf() {
+        if (redirected) return;
+        redirected = true;
+        
         var isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
         if (isMobile && window.location.hostname !== "localhost" && window.location.hostname !== "127.0.0.1") {
             var fullUrl = new URL(pdfUrl, window.location.href).href;
