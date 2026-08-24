@@ -53,7 +53,15 @@ if (!pdfUrl || pdfUrl.trim() === "") {
                 // Create floating download button
                 var downloadBtn = document.createElement('a');
                 downloadBtn.href = pdfUrl;
-                downloadBtn.download = "Resume.pdf";
+                downloadBtn.target = "_blank";
+                
+                // Only add the 'download' attribute on non-iOS devices
+                // since iOS Safari fails silently when trying to force PDF downloads
+                var isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+                if (!isIOS) {
+                    downloadBtn.download = "Resume.pdf";
+                }
+                
                 downloadBtn.style.position = "fixed";
                 downloadBtn.style.bottom = "25px";
                 downloadBtn.style.right = "25px";
