@@ -10,11 +10,14 @@ if (!pdfUrl || pdfUrl.trim() === "") {
     });
 } else {
     var redirected = false;
+    var cachedBlob = null;
+
     function redirectToPdf() {
         if (redirected) return;
         redirected = true;
         
-        var isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+        var isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent) || 
+                       (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
         if (isMobile && window.location.hostname !== "localhost" && window.location.hostname !== "127.0.0.1") {
             var fullUrl = new URL(pdfUrl, window.location.href).href;
             
@@ -50,18 +53,45 @@ if (!pdfUrl || pdfUrl.trim() === "") {
                     });
                 }
                 
+                // Derive clean filename
+                var filename = "Prabhu_Teja_Resume.pdf";
+                if (pdfUrl) {
+                    var cleanUrl = pdfUrl.split('?')[0].split('#')[0];
+                    var parts = cleanUrl.split('/');
+                    var last = parts[parts.length - 1];
+                    if (last && last.toLowerCase().endsWith('.pdf')) {
+                        filename = decodeURIComponent(last);
+                    }
+                }
+
+                function triggerBlobDownload(blob) {
+                    try {
+                        // Using application/octet-stream forces iOS Safari and other mobile browsers
+                        // to trigger the native download manager rather than an inline viewer tab.
+                        var octetBlob = new Blob([blob], { type: 'application/octet-stream' });
+                        var blobUrl = URL.createObjectURL(octetBlob);
+                        var a = document.createElement('a');
+                        a.href = blobUrl;
+                        a.download = filename;
+                        a.style.display = 'none';
+                        document.body.appendChild(a);
+                        a.click();
+                        setTimeout(function() {
+                            if (a.parentNode) a.parentNode.removeChild(a);
+                            URL.revokeObjectURL(blobUrl);
+                        }, 4000);
+                    } catch (e) {
+                        console.error("Blob download failed:", e);
+                        window.location.href = pdfUrl;
+                    }
+                }
+
                 // Create floating download button
                 var downloadBtn = document.createElement('a');
                 downloadBtn.href = pdfUrl;
-                downloadBtn.target = "_blank";
-                
-                // Only add the 'download' attribute on non-iOS devices
-                // since iOS Safari fails silently when trying to force PDF downloads
-                var isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
-                if (!isIOS) {
-                    downloadBtn.download = "Resume.pdf";
-                }
-                
+                downloadBtn.download = filename;
+                downloadBtn.setAttribute('aria-label', 'Download Resume');
+                downloadBtn.title = "Download Resume";
                 downloadBtn.style.position = "fixed";
                 downloadBtn.style.bottom = "25px";
                 downloadBtn.style.right = "25px";
@@ -75,9 +105,104 @@ if (!pdfUrl || pdfUrl.trim() === "") {
                 downloadBtn.style.alignItems = "center";
                 downloadBtn.style.boxShadow = "0 4px 12px rgba(0,0,0,0.5)";
                 downloadBtn.style.zIndex = "999999";
+                downloadBtn.style.cursor = "pointer";
                 downloadBtn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>';
                 
+                downloadBtn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+
+                    if (cachedBlob) {
+                        triggerBlobDownload(cachedBlob);
+                    } else {
+                        fetch(pdfUrl)
+                            .then(function(res) { return res.blob(); })
+                            .then(function(blob) {
+                                cachedBlob = blob;
+                                triggerBlobDownload(blob);
+                            })
+                            .catch(function() {
+                                window.location.href = pdfUrl;
+                            });
+                    }
+                });
+
                 document.body.appendChild(downloadBtn);
+
+                // If Web Share API is available (supported on iOS Safari 14+), add a dedicated Share / Save to Files button
+                if (navigator.share) {
+                    var shareBtn = document.createElement('button');
+                    shareBtn.setAttribute('aria-label', 'Share or Save to Files');
+                    shareBtn.title = "Share or Save to Files";
+                    shareBtn.style.position = "fixed";
+                    shareBtn.style.bottom = "92px";
+                    shareBtn.style.right = "29px";
+                    shareBtn.style.backgroundColor = "rgba(33, 38, 45, 0.92)";
+                    shareBtn.style.border = "1px solid rgba(255, 255, 255, 0.25)";
+                    shareBtn.style.color = "white";
+                    shareBtn.style.width = "48px";
+                    shareBtn.style.height = "48px";
+                    shareBtn.style.borderRadius = "24px";
+                    shareBtn.style.display = "flex";
+                    shareBtn.style.justifyContent = "center";
+                    shareBtn.style.alignItems = "center";
+                    shareBtn.style.boxShadow = "0 4px 12px rgba(0,0,0,0.4)";
+                    shareBtn.style.backdropFilter = "blur(8px)";
+                    shareBtn.style.webkitBackdropFilter = "blur(8px)";
+                    shareBtn.style.zIndex = "999999";
+                    shareBtn.style.cursor = "pointer";
+                    // Apple iOS Share icon (box with upward arrow)
+                    shareBtn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"></path><polyline points="16 6 12 2 8 6"></polyline><line x1="12" y1="2" x2="12" y2="15"></line></svg>';
+
+                    shareBtn.addEventListener('click', function(e) {
+                        e.preventDefault();
+                        e.stopPropagation();
+
+                        function doShare(blob) {
+                            try {
+                                var file = new File([blob], filename, { type: 'application/pdf' });
+                                if (navigator.canShare && navigator.canShare({ files: [file] })) {
+                                    navigator.share({
+                                        files: [file],
+                                        title: filename
+                                    }).catch(function(err) {
+                                        if (err.name !== 'AbortError') {
+                                            console.warn("File share aborted or failed:", err);
+                                        }
+                                    });
+                                    return;
+                                }
+                            } catch (err) {
+                                console.warn("File object share failed, attempting link share:", err);
+                            }
+
+                            // Fallback to URL share
+                            navigator.share({
+                                title: 'Prabhu Teja Pamula - Resume',
+                                url: fullUrl
+                            }).catch(function() {});
+                        }
+
+                        if (cachedBlob) {
+                            doShare(cachedBlob);
+                        } else {
+                            fetch(pdfUrl)
+                                .then(function(res) { return res.blob(); })
+                                .then(function(blob) {
+                                    cachedBlob = blob;
+                                    doShare(blob);
+                                })
+                                .catch(function() {
+                                    navigator.share({
+                                        title: 'Prabhu Teja Pamula - Resume',
+                                        url: fullUrl
+                                    }).catch(function() {});
+                                });
+                        }
+                    });
+
+                    document.body.appendChild(shareBtn);
+                }
                 
             }).catch(function(error) {
                 console.error("PDF.js Error: ", error);
@@ -90,9 +215,18 @@ if (!pdfUrl || pdfUrl.trim() === "") {
     }
 
     fetch(pdfUrl)
-        .then(function(response) { return response.blob(); })
-        .then(redirectToPdf)
-        .catch(redirectToPdf);
+        .then(function(response) {
+            if (!response.ok) throw new Error("Network response was not ok");
+            return response.blob();
+        })
+        .then(function(blob) {
+            cachedBlob = blob;
+            redirectToPdf();
+        })
+        .catch(function(err) {
+            console.warn("Pre-fetch blob error:", err);
+            redirectToPdf();
+        });
 
     setTimeout(redirectToPdf, 6000);
 }
